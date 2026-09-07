@@ -33,6 +33,27 @@
             </intent-filter>
         </activity>
 
+        <!-- 透明 Activity，供三方应用直接调用切换输入法 -->
+        <activity
+            android:name=".ShortcutLauncherActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Transparent"
+            android:excludeFromRecents="true"
+            android:noHistory="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.mz.floatball.SWITCH_IME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.mz.floatball.TOGGLE_IME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".service.FloatBallService"
             android:enabled="true"
