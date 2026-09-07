@@ -111,6 +111,16 @@ class ClipboardAccessibilityService : AccessibilityService() {
             hasNoSelection(target)) {
             selectAllInNode(target)
         }
+        // CUT 需要先复制到剪贴板再删除
+        if (action == AccessibilityNodeInfo.ACTION_CUT) {
+            val text = target.text?.toString() ?: ""
+            if (text.isNotEmpty()) {
+                val clip = android.content.ClipData.newPlainText("mz_floatball", text)
+                val cm = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                cm.setPrimaryClip(clip)
+                AppLog.log("Action", "CUT: 先复制到剪贴板")
+            }
+        }
 
         // 先聚焦
         target.performAction(AccessibilityNodeInfo.ACTION_FOCUS)

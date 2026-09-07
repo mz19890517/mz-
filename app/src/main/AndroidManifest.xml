@@ -24,6 +24,15 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- 三方快捷方式：切换输入法 -->
+            <intent-filter>
+                <action android:name="com.mz.floatball.SWITCH_IME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.mz.floatball.TOGGLE_IME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <service

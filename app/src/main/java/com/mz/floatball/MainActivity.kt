@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -19,17 +20,20 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var tvImeStatus: TextView
     private lateinit var tvPermStatus: TextView
+    private lateinit var tvShortcutInfo: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // 处理快捷方式 Intent：直接切换输入法
+        handleShortcutIntent(intent)
+
         tvImeStatus = TextView(this).apply { textSize = 16f; setPadding(0, 16, 0, 8) }
         tvPermStatus = TextView(this).apply { textSize = 16f; setPadding(0, 0, 0, 8) }
+        tvShortcutInfo = TextView(this).apply { textSize = 12f; setTextColor(0xFF666666.toInt()); setPadding(0, 0, 0, 8) }
 
         val root = findViewById<LinearLayout>(R.id.mainLayout)
-
-        // 隐藏默认按钮
         findViewById<TextView>(R.id.tvStatus).visibility = android.view.View.GONE
         findViewById<Button>(R.id.btnOverlay).visibility = android.view.View.GONE
         findViewById<Button>(R.id.btnAccessibility).visibility = android.view.View.GONE
@@ -54,22 +58,73 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, "✅ 已复制！请粘贴到甲壳虫/ADB 执行", Toast.LENGTH_LONG).show()
             }
         })
-
         root.addView(TextView(this).apply {
             text = "复制后在「甲壳虫调试助手」的 Shell 中粘贴执行"
             textSize = 12f; setTextColor(0xFF666666.toInt()); setPadding(0, 4, 0, 12)
         })
 
-        // 启动悬浮球
+        // 显示/隐藏悬浮球开关
+        val isRunning = isServiceRunning()
+        root.addView(Switch(this).apply {
+            text = "显示悬浮球"
+            textSize = 16f
+            isChecked = isRunning
+            setOnCheckedChangeListener { _, checked ->
+                if (checked) {
+                    startService(Intent(this@MainActivity, FloatBallService::class.java))
+                    Toast.makeText(this@MainActivity, "悬浮球已显示", Toast.LENGTH_SHORT).show()
+                } else {
+                    stopService(Intent(this@MainActivity, FloatBallService::class.java))
+                    Toast.makeText(this@MainActivity, "悬浮球已隐藏", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+
+        root.addView(TextView(this).apply { setPadding(0, 8, 0, 0) })
+
+        // 快捷方式说明
+        tvShortcutInfo.text = "三方调用方式：\n" +
+            "am start -a com.mz.floatball.SWITCH_IME\n" +
+            "am start -a com.mz.floatball.TOGGLE_IME"
+        root.addView(tvShortcutInfo)
+
+        root.addView(TextView(this).apply { setPadding(0, 8, 0, 0) })
+
+        // 启动按钮
         val btnStart = findViewById<Button>(R.id.btnStartFloat)
         btnStart.text = "🚀 启动悬浮球"
         btnStart.isEnabled = true
         btnStart.setOnClickListener {
             startService(Intent(this, FloatBallService::class.java))
-            finish()
+            Toast.makeText(this, "悬浮球已启动", Toast.LENGTH_SHORT).show()
         }
 
         updateStatus()
+    }
+
+    private fun handleShortcutIntent(intent: Intent?) {
+        when (intent?.action) {
+            "com.mz.floatball.SWITCH_IME",
+            "com.mz.floatball.TOGGLE_IME" -> {
+                ImeSwitcher.toggle(this)
+                val toMz = ImeSwitcher.isMzActive(this)
+                Toast.makeText(this, if (toMz) "→ Mz 输入法" else "← 已切回", Toast.LENGTH_SHORT).show()
+                finish() // 切换后关闭
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        handleShortcutIntent(intent)
+    }
+
+    private fun isServiceRunning(): Boolean {
+        val manager = getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
+        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+            if (FloatBallService::class.java.name == service.service.className) return true
+        }
+        return false
     }
 
     private fun updateStatus() {
@@ -84,8 +139,8 @@ class MainActivity : AppCompatActivity() {
         tvPermStatus.setTextColor(if (hasPermission) 0xFF4CAF50.toInt() else 0xFFFF5252.toInt())
 
         if (!hasOverlay) {
-            val rootLayout = findViewById<LinearLayout>(R.id.mainLayout)
-            rootLayout.addView(Button(this).apply {
+            val root = findViewById<LinearLayout>(R.id.mainLayout)
+            root.addView(Button(this).apply {
                 text = "⚠ 授予悬浮窗权限"
                 setOnClickListener {
                     startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
@@ -93,7 +148,6 @@ class MainActivity : AppCompatActivity() {
             }, 2)
         }
     }
-
 
     override fun onResume() {
         super.onResume()

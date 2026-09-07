@@ -95,10 +95,16 @@ class MzInputMethodService : InputMethodService() {
             val selected = if (selStart != selEnd && selStart >= 0 && selEnd >= 0)
                 text.substring(selStart.coerceAtMost(selEnd), selEnd.coerceAtLeast(selStart))
             else text
+            // 1. 复制到剪贴板
             val clip = android.content.ClipData.newPlainText("mz_floatball", selected)
             (getSystemService(CLIPBOARD_SERVICE) as android.content.ClipboardManager).setPrimaryClip(clip)
-            if (selStart >= 0 && selEnd >= 0 && selStart != selEnd)
-                conn.setSelection(selStart.coerceAtMost(selEnd), selStart.coerceAtMost(selEnd))
+            // 2. 删除选中文本（替换为空）
+            if (selStart >= 0 && selEnd >= 0 && selStart != selEnd) {
+                conn.beginBatchEdit()
+                conn.setSelection(selStart.coerceAtMost(selEnd), selEnd.coerceAtLeast(selStart))
+                conn.commitText("", 1)
+                conn.endBatchEdit()
+            }
             AppLog.log("IME", "剪切: ${selected.take(40)}")
             Toast.makeText(this, "✓ 已剪切", Toast.LENGTH_SHORT).show()
         }
