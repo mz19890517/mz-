@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         handleShortcutIntent(intent)
+        registerDynamicShortcut()
 
         tvImeStatus = TextView(this).apply { textSize = 16f; setPadding(0, 16, 0, 8) }
         tvPermStatus = TextView(this).apply { textSize = 16f; setPadding(0, 0, 0, 8) }
@@ -111,6 +112,22 @@ class MainActivity : AppCompatActivity() {
         updateStatus()
     }
 
+    private fun registerDynamicShortcut() {
+        val sm = getSystemService(ShortcutManager::class.java)
+        val intent = Intent(this, MainActivity::class.java).apply {
+            action = "com.mz.floatball.SWITCH_IME"
+            putExtra("from_shortcut", true)
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val shortcut = ShortcutInfo.Builder(this, "mz_switch_ime")
+            .setShortLabel("Mz切换")
+            .setLongLabel("Mz悬浮球 - 切换输入法")
+            .setIcon(Icon.createWithResource(this, R.drawable.ic_launcher_foreground))
+            .setIntent(intent)
+            .build()
+        sm.dynamicShortcuts = listOf(shortcut)
+    }
+
     private fun addHomeShortcut() {
         val sm = getSystemService(ShortcutManager::class.java)
         if (sm.isRequestPinShortcutSupported) {
@@ -150,6 +167,7 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         handleShortcutIntent(intent)
+        registerDynamicShortcut()
     }
 
     private fun isServiceRunning(): Boolean {
