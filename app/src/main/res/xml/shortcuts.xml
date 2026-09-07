@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="mz_switch_ime"
+        android:shortcutShortLabel="@string/shortcut_switch_label"
+        android:shortcutLongLabel="@string/shortcut_switch_long"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher">
+        <intent
+            android:action="com.mz.floatball.SWITCH_IME"
+            android:targetPackage="com.mz.floatball"
+            android:targetClass="com.mz.floatball.MainActivity" />
+    </shortcut>
+</shortcuts>

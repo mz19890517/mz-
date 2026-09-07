@@ -24,6 +24,9 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
             <!-- 三方快捷方式：切换输入法 -->
             <intent-filter>
                 <action android:name="com.mz.floatball.SWITCH_IME" />

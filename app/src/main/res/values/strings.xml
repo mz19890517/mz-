@@ -16,4 +16,6 @@
     <string name="panel_ocr">OCR</string>
     <string name="ocr_result_title">OCR 识别结果</string>
     <string name="btn_copy_result">复制结果</string>
+    <string name="shortcut_switch_label">Mz切换</string>
+    <string name="shortcut_switch_long">Mz悬浮球 - 切换输入法</string>
 </resources>
