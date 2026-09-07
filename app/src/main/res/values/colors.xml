@@ -1,7 +1,27 @@
 <resources>
-    <color name="brand_blue">#2196F3</color>
-    <color name="brand_dark">#263238</color>
+    <!-- 主色：深空蓝-紫色渐变 -->
+    <color name="ball_start">#6C63FF</color>
+    <color name="ball_end">#5B86E5</color>
+    <color name="ball_text">#FFFFFF</color>
+
+    <!-- 面板 -->
+    <color name="panel_bg">#F01A1A2E</color>
+    <color name="panel_border">#40FFFFFF</color>
+    <color name="panel_divider">#25FFFFFF</color>
+
+    <!-- 按钮 -->
+    <color name="btn_primary">#7C6CFF</color>
+    <color name="btn_accent">#4A9EFF</color>
+    <color name="btn_warn">#FF6B6B</color>
+    <color name="btn_surface">#1AFFFFFF</color>
+    <color name="btn_text">#FFFFFF</color>
+
+    <!-- 状态 -->
+    <color name="success">#4CAF50</color>
+    <color name="error">#FF5252</color>
+    <color name="text_dim">#88FFFFFF</color>
+
     <color name="white">#FFFFFF</color>
-    <color name="panel_bg">#E8263238</color>
-    <color name="ball_bg">#AA2196F3</color>
+    <color name="brand_blue">#2196F3</color>
+    <color name="brand_dark">#1A1A2E</color>
 </resources>
