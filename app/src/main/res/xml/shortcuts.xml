@@ -5,7 +5,7 @@
         android:shortcutShortLabel="@string/shortcut_switch_label"
         android:shortcutLongLabel="@string/shortcut_switch_long"
         android:enabled="true"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@drawable/ic_launcher_foreground">
         <intent
             android:action="com.mz.floatball.SWITCH_IME"
             android:targetPackage="com.mz.floatball"

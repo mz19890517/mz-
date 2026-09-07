@@ -113,19 +113,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun registerDynamicShortcut() {
-        val sm = getSystemService(ShortcutManager::class.java)
-        val intent = Intent(this, MainActivity::class.java).apply {
-            action = "com.mz.floatball.SWITCH_IME"
-            putExtra("from_shortcut", true)
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        try {
+            val sm = getSystemService(ShortcutManager::class.java) ?: return
+            val intent = Intent(this, MainActivity::class.java).apply {
+                action = "com.mz.floatball.SWITCH_IME"
+                putExtra("from_shortcut", true)
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
+            val shortcut = ShortcutInfo.Builder(this, "mz_switch_ime")
+                .setShortLabel("Mz切换")
+                .setLongLabel("Mz悬浮球 - 切换输入法")
+                .setIcon(Icon.createWithResource(this, R.drawable.ic_launcher_foreground))
+                .setIntent(intent)
+                .build()
+            sm.dynamicShortcuts = listOf(shortcut)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        val shortcut = ShortcutInfo.Builder(this, "mz_switch_ime")
-            .setShortLabel("Mz切换")
-            .setLongLabel("Mz悬浮球 - 切换输入法")
-            .setIcon(Icon.createWithResource(this, R.drawable.ic_launcher_foreground))
-            .setIntent(intent)
-            .build()
-        sm.dynamicShortcuts = listOf(shortcut)
     }
 
     private fun addHomeShortcut() {
