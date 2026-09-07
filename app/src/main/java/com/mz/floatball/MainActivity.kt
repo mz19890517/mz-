@@ -17,6 +17,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.mz.floatball.service.FloatBallService
+import com.mz.floatball.service.AppLog
 import com.mz.floatball.service.ImeSwitcher
 
 class MainActivity : AppCompatActivity() {
@@ -117,18 +118,25 @@ class MainActivity : AppCompatActivity() {
             val sm = getSystemService(ShortcutManager::class.java) ?: return
             val intent = Intent(this, MainActivity::class.java).apply {
                 action = "com.mz.floatball.SWITCH_IME"
+                setPackage(packageName)
                 putExtra("from_shortcut", true)
-                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }
-            val shortcut = ShortcutInfo.Builder(this, "mz_switch_ime")
+            val shortcut = ShortcutInfo.Builder(this, "mz_toggle_ime")
                 .setShortLabel("Mz切换")
                 .setLongLabel("Mz悬浮球 - 切换输入法")
                 .setIcon(Icon.createWithResource(this, R.drawable.ic_launcher_foreground))
                 .setIntent(intent)
                 .build()
-            sm.dynamicShortcuts = listOf(shortcut)
+            val shortcuts = listOf(shortcut)
+            if (!sm.setDynamicShortcuts(shortcuts)) {
+                AppLog.log("Shortcut", "setDynamicShortcuts failed, trying addDynamicShortcuts")
+                sm.removeDynamicShortcuts(listOf("mz_toggle_ime"))
+                sm.addDynamicShortcuts(shortcuts)
+            }
+            AppLog.log("Shortcut", "dynamic shortcuts registered")
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLog.log("Shortcut", "registerDynamicShortcut error: ${e.message}")
         }
     }
 
