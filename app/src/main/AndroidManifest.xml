@@ -27,12 +27,10 @@
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
-            <!-- 三方快捷方式：切换输入法 -->
             <intent-filter>
                 <action android:name="com.mz.floatball.SWITCH_IME" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
         </activity>
 
         <service
@@ -81,6 +79,15 @@
             android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".service.ShortcutReceiver"
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="com.mz.floatball.SWITCH_IME" />
             </intent-filter>
         </receiver>
     </application>
