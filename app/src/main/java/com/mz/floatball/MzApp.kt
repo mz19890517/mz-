@@ -17,7 +17,7 @@ class MzApp : Application() {
     private fun registerShortcut() {
         try {
             val sm = getSystemService(ShortcutManager::class.java) ?: return
-            val intent = Intent(this, MainActivity::class.java).apply {
+            val intent = Intent(this, ShortcutLauncherActivity::class.java).apply {
                 action = "com.mz.floatball.SWITCH_IME"
                 setPackage(packageName)
                 putExtra("from_shortcut", true)
@@ -33,6 +33,11 @@ class MzApp : Application() {
             if (!sm.setDynamicShortcuts(shortcuts)) {
                 sm.removeDynamicShortcuts(listOf("mz_toggle_ime"))
                 sm.addDynamicShortcuts(shortcuts)
+            }
+            // 强制刷新静态快捷方式索引（升级安装后系统可能不自动刷新）
+            try {
+                sm.updateShortcuts(shortcuts)
+            } catch (_: Exception) {
             }
         } catch (_: Exception) {
         }

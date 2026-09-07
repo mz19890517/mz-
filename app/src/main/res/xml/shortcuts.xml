@@ -9,6 +9,6 @@
         <intent
             android:action="com.mz.floatball.SWITCH_IME"
             android:targetPackage="com.mz.floatball"
-            android:targetClass="com.mz.floatball.MainActivity" />
+            android:targetClass="com.mz.floatball.ShortcutLauncherActivity" />
     </shortcut>
 </shortcuts>

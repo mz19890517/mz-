@@ -27,8 +27,23 @@
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
+        </activity>
+
+        <!-- 透明切换 Activity：无 UI，命令/快捷方式调用后直接切换并退出 -->
+        <activity
+            android:name=".ShortcutLauncherActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Transparent"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:launchMode="singleTask"
+            android:taskAffinity="">
             <intent-filter>
                 <action android:name="com.mz.floatball.SWITCH_IME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.mz.floatball.TOGGLE_IME" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

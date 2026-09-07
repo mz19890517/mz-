@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity() {
     private fun registerDynamicShortcut() {
         try {
             val sm = getSystemService(ShortcutManager::class.java) ?: return
-            val intent = Intent(this, MainActivity::class.java).apply {
+            val intent = Intent(this, ShortcutLauncherActivity::class.java).apply {
                 action = "com.mz.floatball.SWITCH_IME"
                 setPackage(packageName)
                 putExtra("from_shortcut", true)
@@ -143,7 +143,7 @@ class MainActivity : AppCompatActivity() {
     private fun addHomeShortcut() {
         val sm = getSystemService(ShortcutManager::class.java)
         if (sm.isRequestPinShortcutSupported) {
-            val intent = Intent(this, MainActivity::class.java).apply {
+            val intent = Intent(this, ShortcutLauncherActivity::class.java).apply {
                 action = "com.mz.floatball.SWITCH_IME"
                 putExtra("from_shortcut", true)
                 flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
