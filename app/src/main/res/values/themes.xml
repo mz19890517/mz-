@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.MzFloatBall" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_blue</item>
+        <item name="colorPrimaryVariant">@color/brand_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+    </style>
+</resources>

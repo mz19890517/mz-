@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Mz悬浮球</string>
+    <string name="accessibility_service_description">用于读取和操作屏幕文本（复制/粘贴/剪切/OCR识别）</string>
+    <string name="btn_start_float">启动悬浮球</string>
+    <string name="btn_enable_accessibility">开启无障碍服务</string>
+    <string name="btn_open_overlay">授予悬浮窗权限</string>
+    <string name="status_ready">✅ 就绪</string>
+    <string name="status_no_accessibility">❌ 无障碍服务未开启</string>
+    <string name="status_no_overlay">❌ 悬浮窗权限未授予</string>
+    <string name="float_ball_label">Mz</string>
+    <string name="panel_copy">复制</string>
+    <string name="panel_paste">粘贴</string>
+    <string name="panel_cut">剪切</string>
+    <string name="panel_ocr">OCR</string>
+    <string name="panel_select_all">全选</string>
+    <string name="panel_close">关闭</string>
+    <string name="ocr_result_title">OCR 识别结果</string>
+    <string name="btn_copy_result">复制结果</string>
+</resources>

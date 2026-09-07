@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="32dp"
+    android:background="@color/brand_dark">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textSize="28sp"
+        android:textColor="@color/brand_blue"
+        android:textStyle="bold"
+        android:layout_marginBottom="32dp" />
+
+    <!-- 悬浮窗权限 -->
+    <Button
+        android:id="@+id/btnOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="@string/btn_open_overlay"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/brand_blue" />
+
+    <!-- 无障碍服务 -->
+    <Button
+        android:id="@+id/btnAccessibility"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="@string/btn_enable_accessibility"
+        android:layout_marginBottom="24dp"
+        android:backgroundTint="@color/brand_blue" />
+
+    <!-- 状态显示 -->
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/status_no_overlay"
+        android:textSize="16sp"
+        android:textColor="#AAAAAA"
+        android:layout_marginBottom="32dp" />
+
+    <!-- 启动按钮 -->
+    <Button
+        android:id="@+id/btnStartFloat"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:text="@string/btn_start_float"
+        android:textSize="18sp"
+        android:backgroundTint="#4CAF50"
+        android:enabled="false" />
+
+</LinearLayout>

@@ -1,0 +1,7 @@
+<resources>
+    <color name="brand_blue">#2196F3</color>
+    <color name="brand_dark">#263238</color>
+    <color name="white">#FFFFFF</color>
+    <color name="panel_bg">#E8263238</color>
+    <color name="ball_bg">#AA2196F3</color>
+</resources>
