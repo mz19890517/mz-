@@ -1,7 +1,9 @@
 package com.mz.floatball.service
 
 import android.app.Service
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.PixelFormat
 import android.graphics.Typeface
 import android.os.Handler
@@ -38,11 +40,26 @@ class FloatBallService : Service() {
     private val IME_COMPONENT = "com.mz.floatball/.service.MzInputMethodService"
 
     override fun onBind(intent: Intent?): IBinder? = null
+    private val imeReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val isMz = intent.getBooleanExtra("is_mz", ImeSwitcher.isMzActive(context))
+            updateBallColor(isMz)
+            Toast.makeText(context, if (isMz) "→ Mz 输入法" else "← 已切回", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
         windowManager = getSystemService(android.content.Context.WINDOW_SERVICE) as WindowManager
         config = FloatBallConfig(this)
         createFloatBall()
+        // 监听输入法切换广播
+        val filter = IntentFilter("com.mz.floatball.IME_CHANGED")
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(imeReceiver, filter, RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(imeReceiver, filter)
+        }
     }
 
     // ==================== 悬浮球 ====================
@@ -285,5 +302,12 @@ class FloatBallService : Service() {
     private fun redoAction() { val s=ClipboardAccessibilityService.instance; if(s==null){Toast.makeText(this,"请先开启无障碍服务",Toast.LENGTH_SHORT).show();return}; if(s.redo())Toast.makeText(this,"✓ 已重做",Toast.LENGTH_SHORT).show() else Toast.makeText(this,"无可重做",Toast.LENGTH_SHORT).show() }
     private fun showLogWindow() { if(LogWindowService.instance==null)startService(Intent(this,LogWindowService::class.java)); LogWindowService.instance?.showLog() }
 
-    override fun onDestroy() { snapRunnable?.let{mainHandler.removeCallbacks(it)}; floatView?.let{windowManager.removeView(it)}; removePanel(); if(settingsVisible)settingsView?.let{windowManager.removeView(it)}; super.onDestroy() }
+    override fun onDestroy() {
+        try { unregisterReceiver(imeReceiver) } catch (_: Exception) {}
+        snapRunnable?.let{mainHandler.removeCallbacks(it)}
+        floatView?.let{windowManager.removeView(it)}
+        removePanel()
+        if(settingsVisible)settingsView?.let{windowManager.removeView(it)}
+        super.onDestroy()
+    }
 }

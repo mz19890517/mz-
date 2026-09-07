@@ -4,6 +4,9 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ShortcutInfo
+import android.content.pm.ShortcutManager
+import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -20,18 +23,15 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var tvImeStatus: TextView
     private lateinit var tvPermStatus: TextView
-    private lateinit var tvShortcutInfo: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // 处理快捷方式 Intent：直接切换输入法
         handleShortcutIntent(intent)
 
         tvImeStatus = TextView(this).apply { textSize = 16f; setPadding(0, 16, 0, 8) }
         tvPermStatus = TextView(this).apply { textSize = 16f; setPadding(0, 0, 0, 8) }
-        tvShortcutInfo = TextView(this).apply { textSize = 12f; setTextColor(0xFF666666.toInt()); setPadding(0, 0, 0, 8) }
 
         val root = findViewById<LinearLayout>(R.id.mainLayout)
         findViewById<TextView>(R.id.tvStatus).visibility = android.view.View.GONE
@@ -66,9 +66,7 @@ class MainActivity : AppCompatActivity() {
         // 显示/隐藏悬浮球开关
         val isRunning = isServiceRunning()
         root.addView(Switch(this).apply {
-            text = "显示悬浮球"
-            textSize = 16f
-            isChecked = isRunning
+            text = "显示悬浮球"; textSize = 16f; isChecked = isRunning
             setOnCheckedChangeListener { _, checked ->
                 if (checked) {
                     startService(Intent(this@MainActivity, FloatBallService::class.java))
@@ -79,14 +77,25 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
-
         root.addView(TextView(this).apply { setPadding(0, 8, 0, 0) })
 
-        // 快捷方式说明
-        tvShortcutInfo.text = "三方调用方式：\n" +
-            "am start -a com.mz.floatball.SWITCH_IME\n" +
-            "am start -a com.mz.floatball.TOGGLE_IME"
-        root.addView(tvShortcutInfo)
+        // 添加到桌面快捷方式
+        root.addView(Button(this).apply {
+            text = "📱 添加快捷方式到桌面"
+            textSize = 16f
+            setOnClickListener { addHomeShortcut() }
+        })
+        root.addView(TextView(this).apply {
+            text = "桌面快捷方式可直接切换输入法，无需打开 App"
+            textSize = 12f; setTextColor(0xFF666666.toInt()); setPadding(0, 4, 0, 12)
+        })
+
+        // 命令调用方式
+        root.addView(TextView(this).apply {
+            text = "命令行调用：\nam start -a com.mz.floatball.SWITCH_IME"
+            textSize = 12f; setTextColor(0xFF666666.toInt()); setPadding(0, 8, 0, 0)
+            typeface = android.graphics.Typeface.MONOSPACE
+        })
 
         root.addView(TextView(this).apply { setPadding(0, 8, 0, 0) })
 
@@ -102,15 +111,39 @@ class MainActivity : AppCompatActivity() {
         updateStatus()
     }
 
-    private fun handleShortcutIntent(intent: Intent?) {
-        when (intent?.action) {
-            "com.mz.floatball.SWITCH_IME",
-            "com.mz.floatball.TOGGLE_IME" -> {
-                ImeSwitcher.toggle(this)
-                val toMz = ImeSwitcher.isMzActive(this)
-                Toast.makeText(this, if (toMz) "→ Mz 输入法" else "← 已切回", Toast.LENGTH_SHORT).show()
-                finish() // 切换后关闭
+    private fun addHomeShortcut() {
+        val sm = getSystemService(ShortcutManager::class.java)
+        if (sm.isRequestPinShortcutSupported) {
+            val intent = Intent(this, MainActivity::class.java).apply {
+                action = "com.mz.floatball.SWITCH_IME"
+                putExtra("from_shortcut", true)
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             }
+            val info = ShortcutInfo.Builder(this, "mz_switch_ime")
+                .setShortLabel("Mz切换")
+                .setLongLabel("Mz悬浮球 - 切换输入法")
+                .setIcon(Icon.createWithResource(this, R.drawable.ic_launcher_foreground))
+                .setIntent(intent)
+                .build()
+            sm.requestPinShortcut(info, null)
+            Toast.makeText(this, "✅ 快捷方式已添加到桌面", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "❌ 桌面不支持快捷方式", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun handleShortcutIntent(intent: Intent?) {
+        if (intent == null) return
+        if (intent.action == "com.mz.floatball.SWITCH_IME" || intent.getBooleanExtra("from_shortcut", false)) {
+            ImeSwitcher.toggle(this)
+            val toMz = ImeSwitcher.isMzActive(this)
+            Toast.makeText(this, if (toMz) "→ Mz 输入法" else "← 已切回", Toast.LENGTH_SHORT).show()
+            // 通知悬浮球更新颜色
+            sendBroadcast(Intent("com.mz.floatball.IME_CHANGED").apply {
+                setPackage(packageName)
+                putExtra("is_mz", toMz)
+            })
+            finish()
         }
     }
 

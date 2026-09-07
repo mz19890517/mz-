@@ -29,10 +29,7 @@
                 <action android:name="com.mz.floatball.SWITCH_IME" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="com.mz.floatball.TOGGLE_IME" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
+
         </activity>
 
         <service
