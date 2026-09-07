@@ -1,12 +1,12 @@
 package com.mz.floatball.service
 
 import android.accessibilityservice.AccessibilityService
-import android.accessibilityservice.GestureDescription
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.os.Bundle
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 
@@ -16,7 +16,7 @@ class ClipboardAccessibilityService : AccessibilityService() {
 
     private val actionReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val action = intent.getIntExtra("action", -1)
+            val action = intent.getIntExtra(EXTRA_ACTION, -1)
             if (action != -1) {
                 performGlobalAction(action)
             }
@@ -26,7 +26,7 @@ class ClipboardAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = this
-        val filter = IntentFilter("com.mz.floatball.ACTION")
+        val filter = IntentFilter(ACTION_TEXT)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(actionReceiver, filter, RECEIVER_NOT_EXPORTED)
         } else {
@@ -50,14 +50,35 @@ class ClipboardAccessibilityService : AccessibilityService() {
         super.onDestroy()
     }
 
-    /** 获取当前焦点输入框的文本 */
+    /** 对当前焦点输入框执行文本操作（复制/粘贴/剪切/全选等） */
+    fun performTextAction(action: Int): Boolean {
+        val root = rootInActiveWindow ?: return false
+        val focused = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
+            ?: findFirstEditable(root)
+            ?: return false
+        return focused.performAction(action)
+    }
+
+    private fun findFirstEditable(node: AccessibilityNodeInfo): AccessibilityNodeInfo? {
+        if (node.isEditable || node.className?.toString()?.contains("EditText") == true) {
+            return node
+        }
+        for (i in 0 until node.childCount) {
+            val child = node.getChild(i) ?: continue
+            val found = findFirstEditable(child)
+            if (found != null) return found
+        }
+        return null
+    }
+
+    /** 读取当前焦点输入框的文本 */
     fun getFocusedText(): String? {
         val root = rootInActiveWindow ?: return null
         val focused = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: return null
         return focused.text?.toString()
     }
 
-    /** 在当前焦点输入框设置文本（需要 API 21+） */
+    /** 在当前焦点输入框设置文本 */
     fun setText(text: String): Boolean {
         val root = rootInActiveWindow ?: return false
         val focused = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: return false
@@ -67,14 +88,23 @@ class ClipboardAccessibilityService : AccessibilityService() {
         return focused.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
     }
 
-    /** 选中所有文本 */
+
+    /** 全选当前输入框文本 */
     fun selectAll(): Boolean {
         val root = rootInActiveWindow ?: return false
         val focused = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: return false
-        return focused.performAction(AccessibilityNodeInfo.ACTION_SELECT_ALL)
+        val textLength = focused.text?.length ?: return false
+        val args = Bundle().apply {
+            putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, 0)
+            putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT, textLength)
+        }
+        return focused.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION, args)
     }
 
     companion object {
+        const val ACTION_TEXT = "com.mz.floatball.ACTION_TEXT"
+        const val EXTRA_ACTION = "action"
+
         var instance: ClipboardAccessibilityService? = null
             private set
     }

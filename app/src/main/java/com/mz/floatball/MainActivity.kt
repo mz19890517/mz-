@@ -11,6 +11,8 @@ import android.view.accessibility.AccessibilityManager
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.pm.ServiceInfo
 import androidx.appcompat.app.AppCompatActivity
+import com.mz.floatball.service.ClipboardAccessibilityService
+import com.mz.floatball.service.FloatBallService
 
 class MainActivity : AppCompatActivity() {
 
@@ -63,7 +65,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isAccessibilityServiceEnabled(context: Context): Boolean {
-        val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE_SERVICE) as AccessibilityManager
+        val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
         val enabledServices = am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_GENERIC)
         return enabledServices.any {
             it.resolveInfo.serviceInfo.name == ClipboardAccessibilityService::class.java.name

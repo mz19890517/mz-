@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- 悬浮球 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,34a20,20 0 1,0 0.0001,0.0001z" />
+    <!-- 字母 M -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M40,50 L40,64 L45,64 L45,56 L49,60 L53,56 L53,64 L58,64 L58,50 L53,50 L49,55 L45,50 Z" />
+    <!-- 字母 z -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M62,50 L71,50 L62,59 L71,59 L62,64 L71,64 L71,59 L62,59 L71,50 L62,50 Z" />
+</vector>

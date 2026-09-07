@@ -1,15 +1,20 @@
 package com.mz.floatball.service
 
-import android.accessibilityservice.AccessibilityService
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
-import android.os.Build
 import android.os.IBinder
-import android.view.*
-import android.widget.*
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
 import android.view.WindowManager
+import android.view.accessibility.AccessibilityNodeInfo
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import com.mz.floatball.R
 
 class FloatBallService : Service() {
@@ -20,20 +25,16 @@ class FloatBallService : Service() {
     private var panelVisible = false
     private lateinit var wmParams: WindowManager.LayoutParams
     private lateinit var panelParams: WindowManager.LayoutParams
-    private lateinit var clipboardHelper: ClipboardHelper
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        clipboardHelper = ClipboardHelper(this)
         createFloatBall()
     }
 
     private fun createFloatBall() {
-        // 悬浮球
-        val inflater = LayoutInflater.from(this)
         floatView = TextView(this).apply {
             text = getString(R.string.float_ball_label)
             textSize = 14f
@@ -54,7 +55,6 @@ class FloatBallService : Service() {
             y = 400
         }
 
-        // 面板
         panelView = createPanel()
 
         windowManager.addView(floatView, wmParams)
@@ -98,7 +98,6 @@ class FloatBallService : Service() {
                     if (!isDragging && duration < 200) {
                         floatView?.performClick()
                     }
-                    // 吸边
                     snapToEdge()
                     true
                 }
@@ -122,12 +121,14 @@ class FloatBallService : Service() {
         }
 
         val buttons = listOf(
-            "复制" to { doAction(AccessibilityService.GLOBAL_ACTION_COPY) },
-            "粘贴" to { doAction(AccessibilityService.GLOBAL_ACTION_PASTE) },
-            "剪切" to { clipboardHelper.cutCurrentText() },
-            "全选" to { doAction(AccessibilityService.GLOBAL_ACTION_SELECT_ALL) },
-            "OCR" to { Toast.makeText(this, "OCR 功能开发中...", Toast.LENGTH_SHORT).show() },
-            "✕" to { removePanel() }
+            getString(R.string.panel_copy) to { runTextAction(AccessibilityNodeInfo.ACTION_COPY) },
+            getString(R.string.panel_paste) to { runTextAction(AccessibilityNodeInfo.ACTION_PASTE) },
+            getString(R.string.panel_cut) to { runTextAction(AccessibilityNodeInfo.ACTION_CUT) },
+            getString(R.string.panel_select_all) to { selectAllAction() },
+            getString(R.string.panel_ocr) to {
+                Toast.makeText(this, "OCR 功能开发中...", Toast.LENGTH_SHORT).show()
+            },
+            getString(R.string.panel_close) to { removePanel() }
         )
 
         buttons.forEach { (label, action) ->
@@ -158,6 +159,31 @@ class FloatBallService : Service() {
         return panel
     }
 
+
+    private fun selectAllAction() {
+        val service = ClipboardAccessibilityService.instance
+        if (service == null) {
+            Toast.makeText(this, "请先开启无障碍服务", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val success = service.selectAll()
+        if (!success) {
+            Toast.makeText(this, "未找到可编辑的输入框", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun runTextAction(action: Int) {
+        val service = ClipboardAccessibilityService.instance
+        if (service == null) {
+            Toast.makeText(this, "请先开启无障碍服务", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val success = service.performTextAction(action)
+        if (!success) {
+            Toast.makeText(this, "未找到可编辑的输入框", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun showPanel() {
         if (panelView?.parent == null) {
             windowManager.addView(panelView, panelParams)
@@ -172,36 +198,9 @@ class FloatBallService : Service() {
         panelVisible = false
     }
 
-    private fun doAction(action: Int) {
-        val intent = Intent("com.mz.floatball.ACTION")
-            .putExtra("action", action)
-        sendBroadcast(intent)
-    }
-
     override fun onDestroy() {
         floatView?.let { windowManager.removeView(it) }
         removePanel()
         super.onDestroy()
-    }
-}
-
-class ClipboardHelper(private val context: Context) {
-    private val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-
-    fun cutCurrentText() {
-        // 通过广播让 AccessibilityService 执行剪切
-        val intent = Intent("com.mz.floatball.ACTION")
-            .putExtra("action", AccessibilityService.GLOBAL_ACTION_CUT)
-        context.sendBroadcast(intent)
-    }
-
-    fun copyText(text: CharSequence) {
-        val clip = android.content.ClipData.newPlainText("mz_floatball", text)
-        clipboard.setPrimaryClip(clip)
-    }
-
-    fun pasteText(): CharSequence? {
-        val clip = clipboard.primaryClip ?: return null
-        return clip.getItemAt(0).coerceToText(context)
     }
 }
