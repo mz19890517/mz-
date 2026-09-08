@@ -1,0 +1,3 @@
+#!/bin/bash
+DIR="$(cd "$(dirname "$0")" && pwd)"
+exec qemu-x86_64 -L /opt/x86-64-lib/usr "$DIR/aapt2.orig" "$@"
