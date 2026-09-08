@@ -29,6 +29,20 @@
                 android:resource="@xml/shortcuts" />
         </activity>
 
+        <!-- CREATE_SHORTCUT 老式协议：Shortcut Maker / FV 等应用通过此发现快捷方式 -->
+        <activity
+            android:name=".ShortcutsCreateActivity"
+            android:label="@string/shortcut_create_label"
+            android:exported="true"
+            android:theme="@style/Theme.Transparent"
+            android:excludeFromRecents="true"
+            android:noHistory="true">
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <!-- 透明切换 Activity：无 UI，命令/快捷方式调用后直接切换并退出 -->
         <activity
             android:name=".ShortcutLauncherActivity"
