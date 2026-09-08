@@ -45,3 +45,18 @@ exec qemu-x86_64 -L /opt/x86-64-lib/usr /opt/aapt2-custom/aapt2.orig "$@"
 ```properties
 android.aapt2FromMavenOverride=/opt/aapt2-custom/aapt2
 ```
+
+## 完整环境备份（可选）
+
+手机上另有完整环境备份：`/sdcard/AndroidBuildEnv/`（约 1.0G 压缩包）
+
+包含 SDK / Gradle / JDK / ~/.gradle 依赖缓存 / adb环境 / AAPT2兼容件 的完整 tar.gz，
+以及一键恢复脚本 `restore-build-env.sh`。
+
+新设备/新对话中使用：
+
+```bash
+sh /sdcard/AndroidBuildEnv/restore-build-env.sh
+```
+
+恢复后即拥有与开发机完全一致的编译环境，无需重新下载。
